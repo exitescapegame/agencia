@@ -902,7 +902,7 @@ function telaMestre(){
   const DE=LS.get('dEntregue',{});
   const _r=$('#dTxt')?$('#dTxt').value:'',_g=!!(document.querySelector('#app details')||{}).open,_y=scrollY;
   const btn=(id,t,s,hot)=>`<button class="scene ${hot?'hot':''}" data-s="${id}"><b>${t}</b><small>${s}</small></button>`;
-  $('#app').innerHTML=`<div class="classbar red" style="position:sticky;top:0;z-index:20">PAINEL DO MESTRE · RESTRITO · TEMPO <b id="crMini"></b> · <span id="sirMini"></span></div><div class="wrap" style="max-width:820px">
+  $('#app').innerHTML=`<div class="classbar red" style="position:sticky;top:0;z-index:20">PAINEL DO MESTRE · VERSÃO 26 · TEMPO <b id="crMini"></b> · <span id="sirMini"></span></div><div class="wrap" style="max-width:820px">
   <div class="top">${SEAL}<div><h1>CENTRAL · ÍRIS</h1><small>OPERAÇÃO XII · TV: ABRA #TV NA TELEVISÃO (SOM PELA TV)</small></div><div class="clock" id="clk">${hora()}</div></div>
   <div class="lbl">Cronômetro da missão</div>
   <div class="card"><div class="big" id="crono">60:00</div><div style="height:12px"></div><div class="grid2"><button class="btn" id="crGo">${cr.run?'Pausar':'Iniciar'}</button><button class="btn ghost" id="crRs">Zerar</button></div>
