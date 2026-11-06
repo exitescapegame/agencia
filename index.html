@@ -419,7 +419,7 @@ const GUIA=[
  'O RASTRO: sapato + lupa → nº do caso no tablet (ALFA 5826 · BRAVO 2741 · CHARLIE 9360 · DELTA 4198) → vídeos.',
  'O MANDADO: 936 → cadeado do item que ajuda na investigação (lanterna UV).',
  'TINTA INVISÍVEL: quadro UV (cabo 9 · nota 4 · chave 6, ordem dos horários) → 946 → Arquivo de Pessoal.',
- 'O ROSTO: 0936 no tablet (tela do nº do caso) → foto do Alan.',
+ 'O ROSTO: só o mestre libera no tablet (botão ÍRIS → EXITMESTRE → Mostrar rosto do Alan).',
  'A ACUSAÇÃO: passo 75 cm = 1,80 m · calçado 44 → INV 04 "O MAGRO" (Alan). Quando todas entregarem: cena 4.',
  'FINAL: cartão STAFF-07 no leitor → DESARMAR (2 cliques) → cena 6 (certificado 0611).',
  'MESTRE NO TABLET: botão discreto ÍRIS embaixo → senha EXITMESTRE → liberar vídeos, mostrar rosto ou tirar o bloqueio, mesmo com senha errada.'];
@@ -839,7 +839,7 @@ function termLoginCheck(){
   if(!eq){SFX.erro();return termLogin('SENHA INCORRETA · TENTE DE NOVO')}
   try{sessionStorage.setItem('op12_teq',eq);sessionStorage.setItem('op12_tab','1')}catch(e){}SFX.ok();tabInat();telaTerminal();tabBarra();
 }
-const FOTO_COD=['0936'];   // 0936 = senha do mandado (jogadores)
+const FOTO_COD=[];   // rosto do Alan só pelo mestre (botão ÍRIS + EXITMESTRE)
 const MESTRE_ROSTO='EXITMESTRE';   // senha em letras do mestre: mostra o rosto a qualquer momento
 function termMestre(){   // acesso escondido do mestre (botão ÍRIS): senha em letras
   tBuf='';
@@ -902,7 +902,7 @@ function telaMestre(){
   const DE=LS.get('dEntregue',{});
   const _r=$('#dTxt')?$('#dTxt').value:'',_g=!!(document.querySelector('#app details')||{}).open,_y=scrollY;
   const btn=(id,t,s,hot)=>`<button class="scene ${hot?'hot':''}" data-s="${id}"><b>${t}</b><small>${s}</small></button>`;
-  $('#app').innerHTML=`<div class="classbar red" style="position:sticky;top:0;z-index:20">PAINEL DO MESTRE · VERSÃO 26 · TEMPO <b id="crMini"></b> · <span id="sirMini"></span></div><div class="wrap" style="max-width:820px">
+  $('#app').innerHTML=`<div class="classbar red" style="position:sticky;top:0;z-index:20">PAINEL DO MESTRE · VERSÃO 27 · TEMPO <b id="crMini"></b> · <span id="sirMini"></span></div><div class="wrap" style="max-width:820px">
   <div class="top">${SEAL}<div><h1>CENTRAL · ÍRIS</h1><small>OPERAÇÃO XII · TV: ABRA #TV NA TELEVISÃO (SOM PELA TV)</small></div><div class="clock" id="clk">${hora()}</div></div>
   <div class="lbl">Cronômetro da missão</div>
   <div class="card"><div class="big" id="crono">60:00</div><div style="height:12px"></div><div class="grid2"><button class="btn" id="crGo">${cr.run?'Pausar':'Iniciar'}</button><button class="btn ghost" id="crRs">Zerar</button></div>
@@ -941,7 +941,7 @@ function telaMestre(){
   <div style="height:10px"></div><div class="grid2"><button class="btn" id="dEnv">Enviar na TV</button><button class="btn ghost" id="dTir">Tirar da TV</button></div>
   <p class="muted" style="margin:8px 0 0;font-size:12px" id="dSt">A TV não mostra nada enquanto você digita.</p></div>
   <div class="lbl">Senhas e códigos</div>
-  <div class="card" style="font:400 12px/1.8 var(--mono)">TABLET (entrar): ALFA 3107 · BRAVO 4815 · CHARLIE 6290 · DELTA 7342<br>Nº DO CASO (libera os vídeos): ALFA 5826 · BRAVO 2741 · CHARLIE 9360 · DELTA 4198<br>CORES (maleta): 9147 · MANDADO (lanterna UV): 936 · QUADRO UV (Arquivo): 946<br>ROSTO DO ALAN no tablet: 0936 · MESTRE no tablet (botão ÍRIS): EXITMESTRE<br>CERTIFICADO: ${COD_CERT}</div>
+  <div class="card" style="font:400 12px/1.8 var(--mono)">TABLET (entrar): ALFA 3107 · BRAVO 4815 · CHARLIE 6290 · DELTA 7342<br>Nº DO CASO (libera os vídeos): ALFA 5826 · BRAVO 2741 · CHARLIE 9360 · DELTA 4198<br>CORES (maleta): 9147 · MANDADO (lanterna UV): 936 · QUADRO UV (Arquivo): 946<br>ROSTO DO ALAN: só pelo MESTRE no tablet (botão ÍRIS → EXITMESTRE)<br>CERTIFICADO: ${COD_CERT}</div>
   <div class="lbl">Depois dos testes</div>
   <div class="card"><button class="btn ghost" id="zerTudo">ZERAR TUDO NESTE NOTEBOOK (painel + TV)</button><p class="muted" style="margin:8px 0 0;font-size:12px">Apaga cronômetro, andamento, dicas, alertas e registros. Nos celulares e tablets usados no teste, abra ${location.origin+location.pathname}#ZERAR em cada um.</p></div>
   <div class="lbl">Links</div>
