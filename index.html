@@ -912,6 +912,8 @@ function telaMestre(){
   <p class="muted" style="margin:10px 0 0;font-size:12px">Cada Central escaneia o QR da sua equipe (ou digita o código na tela inicial do app). Abre só o caderno daquela Central.</p></div>
   <div class="lbl">Senhas e códigos</div>
   <div class="card" style="font:400 12px/1.8 var(--mono)">TABLET (entrar): ALFA 3107 · BRAVO 4815 · CHARLIE 6290 · DELTA 7342<br>Nº DO CASO (libera os vídeos): ALFA 5826 · BRAVO 2741 · CHARLIE 9360 · DELTA 4198<br>CAIXA DO SUSPEITO: 946 (todas as equipes)<br>ARQUIVO DE PESSOAL e AFIS: ALFA 125 · BRAVO 251 · CHARLIE 512 · DELTA 521<br>CERTIFICADO: ${COD_CERT}</div>
+  <div class="lbl">Depois dos testes</div>
+  <div class="card"><button class="btn ghost" id="zerTudo">ZERAR TUDO NESTE NOTEBOOK (painel + TV)</button><p class="muted" style="margin:8px 0 0;font-size:12px">Apaga cronômetro, andamento, dicas, alertas e registros. Nos celulares e tablets usados no teste, abra ${location.origin+location.pathname}#ZERAR em cada um.</p></div>
   <div class="lbl">Links</div>
   <div class="card" style="font:400 12px/1.8 var(--mono);word-break:break-all">Tablet: ${location.origin+location.pathname}#TERMINAL<br>Celulares: QR do crachá</div>
   <div class="foot">ÍRIS · CENTRAL</div></div>`;
@@ -929,6 +931,8 @@ function telaMestre(){
   document.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{const P=LS.get('placar',{}),p=P[b.dataset.eq]||{};p[b.dataset.e]=p[b.dataset.e]?'':hora()+':'+pad2(new Date().getSeconds());P[b.dataset.eq]=p;LS.set('placar',P);if(p[b.dataset.e])LS.set('ultimo',{eq:b.dataset.eq,e:b.dataset.e,h:hora(),t:Date.now()});if(p[b.dataset.e])SFX.ok();render()});
   document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>cena(b.dataset.s));
   $('#lasCon').onclick=serConectar;
+  $('#zerTudo').onclick=e=>{const b=e.currentTarget;if(!b.dataset.ok){b.dataset.ok=1;b.textContent='Confirmar: APAGAR TODOS OS TESTES';setTimeout(()=>{delete b.dataset.ok;b.textContent='ZERAR TUDO NESTE NOTEBOOK (painel + TV)'},4000);return}
+    zerarAparelho(true);SFX.ok();render()};
   $('#lasPen').onclick=()=>penalidade('manual');
   $('#lasDes').onclick=e=>{const b=e.currentTarget;if(!b.dataset.ok){b.dataset.ok=1;b.textContent='Confirmar: DESARMAR';setTimeout(()=>{delete b.dataset.ok;b.textContent='DESARMAR · cartão encontrado'},4000);return}
     serEnviar('d').then(ok=>{if(ok){SFX.ok();lasMsg('DESARMANDO… (aguarde a confirmação do Arduino)')}})};
@@ -995,6 +999,14 @@ function serLinha(l){
   else if(l.includes('NAO CHEGA')){lasMsg('LASERS NÃO ARMARAM · alinhe o laser no sensor e clique em Armar de novo');lasLog('não armou: laser fora do sensor')}}
 async function serEnviar(ch){if(!serW){lasMsg('CONECTE O ARDUINO PRIMEIRO (botão Conectar Arduino)');SFX.erro();return false}
   try{await serW.write(new TextEncoder().encode(ch));return true}catch(e){lasMsg('FALHA AO ENVIAR · reconecte o Arduino');return false}}
+function zerarAparelho(manterMestre){try{Object.keys(localStorage).filter(k=>k.startsWith('op12_')).forEach(k=>localStorage.removeItem(k));const m=sessionStorage.getItem('op12_m');sessionStorage.clear();if(manterMestre&&m)sessionStorage.setItem('op12_m',m)}catch(e){}}
+function telaZerar(){
+  $('#app').innerHTML=`<div class="classbar red">MANUTENÇÃO · USO DA EQUIPE EXIT</div><div class="wrap"><div class="top">${SEAL}<div><h1>ZERAR APARELHO</h1><small>APAGA OS TESTES DESTE APARELHO</small></div></div>
+  <div class="card" style="margin-top:20px"><p class="muted" style="margin-top:0">Apaga agente, nome, dicas abertas, digitais, certificado e sessão do tablet deste aparelho. O app continua instalado e funcionando sem internet.</p>
+  <button class="btn" id="zOk">Apagar os testes deste aparelho</button><div style="height:10px"></div><button class="btn ghost" id="zNo">Voltar</button></div></div>`;
+  $('#zOk').onclick=e=>{const b=e.currentTarget;if(!b.dataset.ok){b.dataset.ok=1;b.textContent='Toque de novo para confirmar';return}zerarAparelho(false);SFX.ok();$('#app').innerHTML='<div class="wrap"><div class="card" style="margin-top:40px;text-align:center"><h2 style="margin:0">APARELHO ZERADO</h2><p class="muted">Pronto para o jogo.</p></div></div>';setTimeout(()=>{location.hash='';render()},1800)};
+  $('#zNo').onclick=()=>{location.hash='';render()};
+}
 function escondeDica(){clearInterval(dicaT);const el=$('#tvdica');if(el)el.classList.remove('on');try{musAplica()}catch(e){}}
 /* ================== TELA DA TV (espera da ÍRIS + cronômetro + música) ================== */
 function tvOn(){return Date.now()-(+LS.get('tvAlive',0))<4000}
@@ -1052,6 +1064,7 @@ window.addEventListener('storage',ev=>{
 function render(){
   const h=decodeURIComponent(location.hash.slice(1));
   if(h==='TERMINAL'){sessionStorage.setItem('op12_tab','1');return telaTerminal();}
+  if(h==='ZERAR') return telaZerar();
   if(h==='MESTRE') return telaMestre();
   if(h==='TV') return telaTV();
   document.body.classList.remove('tvmode');clearInterval(window._tvi);
