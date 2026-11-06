@@ -821,7 +821,7 @@ function termKey(k){
   if(Date.now()<tLock)return; ac();
   if(k==='C'){tBuf='';SFX.key();return termShow()}
   const chk=()=>tModo==='login'?termLoginCheck():termCheck();
-  if(k==='E'){if(tModo==='caso'&&tBuf==='946')return termFoto();return chk()}
+  if(k==='E'){if(tModo==='caso'&&FOTO_COD.includes(tBuf))return termFoto();return chk()}
   if(tBuf.length<4){tBuf+=k;SFX.key();termShow()} if(tBuf.length===4)setTimeout(chk,250);
 }
 function termLoginCheck(){
@@ -829,6 +829,7 @@ function termLoginCheck(){
   if(!eq){SFX.erro();return termLogin('SENHA INCORRETA · TENTE DE NOVO')}
   try{sessionStorage.setItem('op12_teq',eq);sessionStorage.setItem('op12_tab','1')}catch(e){}SFX.ok();tabInat();telaTerminal();tabBarra();
 }
+const FOTO_COD=['946','0946','936','0936','9147','0611'];   // qualquer um destes no tablet mostra o rosto do Alan (o mestre decide quando)
 function termFoto(){   // senha do quadro (946): mostra o rosto do suspeito
   tBuf='';SFX.ok();
   $('#tb').innerHTML=`<h2 style="color:var(--grn)">ROSTO IDENTIFICADO</h2><div class="sub">CRUZAMENTO DE IMAGENS · CÂMERAS DO SALÃO</div>
@@ -838,7 +839,7 @@ function termFoto(){   // senha do quadro (946): mostra o rosto do suspeito
   $('#tfV').onclick=()=>termPin();
 }
 function termCheck(){
-  if(tModo!=='caso'||tBuf.length<4)return;if(tBuf==='0946')return termFoto();const eq0=SENHAS[tBuf],q=teq();const eq=(q&&eq0!==q)?null:eq0;
+  if(tModo!=='caso'||tBuf.length<4)return;if(FOTO_COD.includes(tBuf))return termFoto();const eq0=SENHAS[tBuf],q=teq();const eq=(q&&eq0!==q)?null:eq0;
   if(!eq){
     tLock=Date.now()+30000;SFX.erro();$('#tm').classList.add('alarm');
     let s=30;$('#tb').innerHTML=`<h2 style="color:var(--red)">ACESSO NEGADO</h2><div class="sub">NÚMERO DE CASO INCORRETO · TERMINAL BLOQUEADO</div><div class="big" id="cd" style="color:var(--red)">30</div>`;
