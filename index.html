@@ -392,7 +392,7 @@ const EVID={"P7K2": {"num": "0611-01", "obj": "Taça de cristal", "local": "Mesa
 const SUSP={ALAN:'INV 04 · "O MAGRO" · Apoio de montagem e serviço · Matrícula 0703',TIAGO:'INV 01 · "BARBA" · Técnico de som · Matrícula 0701',TATIANA:'INV 02 · "ÓCULOS" · Decoradora · Matrícula 0702',ARTHUR:'INV 03 · "LOIRO" · Auxiliar de buffet · Matrícula 0704'};
 const DISP={ALAN:'INV 04',TIAGO:'INV 01',TATIANA:'INV 02',ARTHUR:'INV 03'};
 const PCT={ALAN:'99,9',TIAGO:'99,6',TATIANA:'99,7',ARTHUR:'99,5'};
-const COD_AFIS={'125':'ALFA','251':'BRAVO','512':'CHARLIE','521':'DELTA'};
+const COD_AFIS={'125':'ALFA','251':'BRAVO','512':'CHARLIE','521':'DELTA','5240':'ALFA','8951':'BRAVO','9147':'CHARLIE','2406':'DELTA'};   // 3 dígitos (rondas) ou 4 dígitos (enigma das cores)
 const FASES=[
  ['O RASTRO',[
   'Toda pegada guarda um segredo. Olhem de perto.',
@@ -711,7 +711,7 @@ function telaAFIS(){
   if(!ok){
     $('#app').innerHTML=`<div class="classbar">AFIS · BANCO NACIONAL DE DIGITAIS DA AGÊNCIA</div><div class="wrap"><div class="top">${SEAL}<div><h1>AFIS</h1><small>ACESSO RESTRITO</small></div></div>
     <div class="card" style="margin-top:20px"><p class="muted" style="margin-top:0">Para comparar digitais com os funcionários, digite o código do <b>Arquivo de Pessoal</b> da sua equipe.</p>
-    <input class="field" id="ac" inputmode="numeric" maxlength="3" placeholder="···"><div style="height:12px"></div><button class="btn" id="ab">Acessar banco</button>
+    <input class="field" id="ac" inputmode="numeric" maxlength="4" placeholder="····"><div style="height:12px"></div><button class="btn" id="ab">Acessar banco</button>
     <div style="height:10px"></div><button class="btn ghost" id="volta">Voltar</button></div></div>`;
     $('#ab').onclick=()=>{const v=$('#ac').value.trim();const q=(()=>{try{return sessionStorage.getItem('op12_tab')==='1'?sessionStorage.getItem('op12_teq'):null}catch(x){return null}})();if(COD_AFIS[v]&&(!q||COD_AFIS[v]===q)){LS.set('afisOK',COD_AFIS[v]);SFX.ok();render()}else{SFX.erro();$('#ac').value='';$('#ac').placeholder='CÓDIGO INVÁLIDO'}};
     $('#volta').onclick=()=>{location.hash=voltarDe()};return;
