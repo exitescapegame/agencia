@@ -561,11 +561,6 @@ function telaAgente(a){
    <p>Gravações criptografadas.<small>O agente de Tecnologia deve liberá-las no Terminal do salão e escanear o código da tela.</small></p></div>`}
   <div class="lbl">Tablets do salão</div>
   <div class="card"><div class="kv">SENHA DE ACESSO DA EQUIPE ${a.eq}<b style="font:600 26px var(--mono);letter-spacing:.2em">${Object.keys(TSENHA).find(k=>TSENHA[k]===a.eq)}</b></div><p class="muted" style="margin:6px 0 0;font-size:12px">Use nos tablets. Não mostre para as outras equipes.</p></div>
-  <div class="lbl">Manual de Campo</div>
-  <div class="card"><button class="btn ghost" id="manBtn" onclick="location.hash='MANUAL'">Abrir o Manual de Campo · altura pelo passo</button></div>
-  <div class="lbl">Perícia · digitais</div>
-  <div class="card"><p class="muted" style="margin-top:0">Procure as etiquetas de <b>patrimônio</b> e os <b>lacres da perícia</b> nos objetos. Aproxime o celular ou escaneie o código para revelar digitais.</p>
-  <button class="btn ghost" onclick="location.hash='AFIS'">Banco de digitais (AFIS) · ${Object.keys(digs()).length} capturada(s)</button></div>
   <div class="lbl">Dicas da Agência</div>
   <div class="card"><p class="muted" style="margin:0">Quando a Agência liberar uma dica, ela aparece na <b style="color:var(--amb2)">TV do salão</b>. Fiquem de olho e ouvidos atentos ao chamado de rádio.</p></div>
   <div class="lbl">Selfie de agente</div>
