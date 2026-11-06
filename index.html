@@ -233,6 +233,15 @@ body.tvmode{overflow:hidden}body.tvmode *:focus{outline:none}
 .qmini{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.qmini div{text-align:center;font:600 13px var(--mono);color:var(--amb2)}.qmini .qr{background:#fff;border-radius:6px;width:100%;max-width:200px;aspect-ratio:1;margin:0 auto 6px}.qmini svg{width:100%;height:100%;display:block}
 #tvdica{position:fixed;left:50%;top:13vh;transform:translateX(-50%);width:min(1500px,88vw);z-index:110;display:none;background:linear-gradient(180deg,rgba(11,31,58,.97),rgba(5,14,30,.97));border:2px solid var(--amb2);border-radius:18px;box-shadow:0 0 60px rgba(227,197,128,.35);padding:2.2vh 3vw 2.6vh;color:#fff}
 #tvdica.on{display:block;animation:aparece .6s ease-out}
+#crqBar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px}
+#crqBar .cor{width:46px;height:46px;border-radius:50%;border:3px solid transparent;cursor:pointer}
+#crqBar .cor.on{border-color:#fff;box-shadow:0 0 0 2px var(--amb2)}
+#crqBar .btn{width:auto;padding:10px 16px;font-size:15px}
+#crqBox{position:relative;overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff;max-height:78vh}
+#crqIn{position:relative;width:100%}
+#crqIn img{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none}
+#crqCv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+#crqBox.mover #crqCv{pointer-events:none}
 #tvalerta{position:fixed;inset:0;z-index:150;display:none;place-items:center;text-align:center;background:rgba(150,0,0,.6)}
 #tvalerta.on{display:grid;animation:alPisca .5s steps(2) infinite}
 @keyframes alPisca{50%{background:rgba(40,0,0,.9)}}
@@ -806,7 +815,7 @@ function termPin(msg){
   $('#tb').innerHTML=`<h2>ARQUIVO DE CÂMERAS</h2><div class="sub">${msg||'DIGITE O NÚMERO DO CASO RELACIONADO'}</div>
   <div class="pinrow">${[0,1,2,3].map(i=>`<div class="pin" id="p${i}"></div>`).join('')}</div>
   <div class="pad" style="margin-bottom:18px">${[1,2,3,4,5,6,7,8,9].map(n=>`<button data-k="${n}">${n}</button>`).join('')}<button class="k2" data-k="C">APAGAR</button><button data-k="0">0</button><button class="k2" data-k="E" style="color:var(--grn)">ENTRAR</button></div>`;
-  $('#tb').insertAdjacentHTML('beforeend',`<div style="max-width:420px;margin:0 auto;display:grid;gap:10px"><button class="btn ghost" id="tper">Perícia · digitar código da etiqueta</button><button class="btn ghost" id="tman" onclick="location.hash='MANUAL'">Manual de Campo · altura pelo passo</button></div>`);
+  $('#tb').insertAdjacentHTML('beforeend',`<div style="max-width:420px;margin:0 auto;display:grid;gap:10px"><button class="btn ghost" id="tper">Perícia · digitar código da etiqueta</button><button class="btn ghost" id="tman" onclick="location.hash='MANUAL'">Manual de Campo · altura pelo passo</button><button class="btn ghost" id="tcrq" onclick="location.hash='CROQUI'">Croqui de cena · ligar as rondas</button></div>`);
   $('#tper').onclick=()=>{$('#tb').innerHTML=`<h2>PERÍCIA</h2><div class="sub">DIGITE O CÓDIGO IMPRESSO NA ETIQUETA</div><div style="max-width:420px;margin:0 auto"><input class="field" id="tcod" maxlength="4" placeholder="EX.: A1B2" style="text-align:center;font-size:32px"><div style="height:12px"></div><button class="btn" id="tgo">Abrir</button><div style="height:10px"></div><button class="btn ghost" id="tafis">Banco de digitais (AFIS)</button><div style="height:10px"></div><button class="btn ghost" id="tvol">Voltar</button></div>`;
     $('#tgo').onclick=()=>{const v=$('#tcod').value.trim().toUpperCase();if(EVID[v]){sessionStorage.setItem('op12_tab','1');location.hash='E-'+v}else{SFX.erro();$('#tcod').value='';$('#tcod').placeholder='CÓDIGO INVÁLIDO'}};
     $('#tafis').onclick=()=>{sessionStorage.setItem('op12_tab','1');location.hash='AFIS'};$('#tvol').onclick=()=>termPin()};
@@ -1002,6 +1011,31 @@ function telaZerar(){
   $('#zOk').onclick=e=>{const b=e.currentTarget;if(!b.dataset.ok){b.dataset.ok=1;b.textContent='Toque de novo para confirmar';return}zerarAparelho(false);SFX.ok();$('#app').innerHTML='<div class="wrap"><div class="card" style="margin-top:40px;text-align:center"><h2 style="margin:0">APARELHO ZERADO</h2><p class="muted">Pronto para o jogo.</p></div></div>';setTimeout(()=>{location.hash='';render()},1800)};
   $('#zNo').onclick=()=>{location.hash='';render()};
 }
+/* ===== CROQUI DE CENA no tablet: ligar as rondas com o dedo ===== */
+let crqTr=[],crqCor='#D7263D',crqZoom=1;
+function telaCroqui(){
+  $('#app').innerHTML=`<div class="classbar">PERÍCIA · CROQUI DE CENA · USO DOS AGENTES</div><div class="wrap" style="max-width:1400px">
+  <div class="top">${SEAL}<div><h1>CROQUI DE CENA</h1><small>LIGUEM AS RONDAS DO STAFF-07 NA ORDEM DOS HORÁRIOS · UMA COR PARA CADA RONDA</small></div></div>
+  <div id="crqBar">${['#D7263D','#1565C0','#2E7D32','#F2A900'].map(c=>`<button class="cor ${c===crqCor?'on':''}" data-cor="${c}" style="background:${c}" aria-label="cor"></button>`).join('')}
+   <button class="btn ghost" id="crqUndo">Desfazer</button><button class="btn ghost" id="crqClr">Limpar</button><button class="btn ghost" id="crqZ">${crqZoom>1?'Tamanho normal':'Ampliar'}</button><button class="btn ghost" id="crqMov">Desenhar</button><button class="btn ghost" id="volta">Voltar</button></div>
+  <div id="crqBox"><div id="crqIn" style="width:${crqZoom*100}%"><img src="img/croqui.jpg" alt="Croqui de cena"><canvas id="crqCv" width="2192" height="1759"></canvas></div></div>
+  <p class="muted" style="margin:8px 0 0;font-size:12px">Toquem e arrastem o dedo de um sensor até o próximo. Com "Ampliar", use o botão Desenhar/Mover para alternar entre riscar e arrastar o mapa.</p></div>`;
+  const cv=$('#crqCv'),x=cv.getContext('2d');
+  const pinta=()=>{x.clearRect(0,0,cv.width,cv.height);x.lineCap='round';x.lineJoin='round';crqTr.forEach(t=>{x.strokeStyle=t.c;x.lineWidth=9;x.beginPath();t.p.forEach((q,i)=>i?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1]));if(t.p.length===1){x.arc(t.p[0][0],t.p[0][1],5,0,7)}x.stroke()})};
+  const pos=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*cv.width/r.width,(e.clientY-r.top)*cv.height/r.height]};
+  let atual=null;
+  cv.onpointerdown=e=>{e.preventDefault();try{cv.setPointerCapture(e.pointerId)}catch(_){}atual={c:crqCor,p:[pos(e)]};crqTr.push(atual);pinta()};
+  cv.onpointermove=e=>{if(!atual)return;atual.p.push(pos(e));pinta()};
+  cv.onpointerup=cv.onpointercancel=()=>{atual=null};
+  pinta();
+  const box=$('#crqBox');const mv=$('#crqMov');let mover=false;
+  mv.onclick=()=>{mover=!mover;box.classList.toggle('mover',mover);mv.textContent=mover?'Mover (toque p/ desenhar)':'Desenhar'};
+  document.querySelectorAll('[data-cor]').forEach(b=>b.onclick=()=>{crqCor=b.dataset.cor;document.querySelectorAll('[data-cor]').forEach(z=>z.classList.toggle('on',z===b))});
+  $('#crqUndo').onclick=()=>{crqTr.pop();pinta()};
+  $('#crqClr').onclick=e=>{const b=e.currentTarget;if(!b.dataset.ok){b.dataset.ok=1;b.textContent='Confirmar limpar';setTimeout(()=>{delete b.dataset.ok;b.textContent='Limpar'},3000);return}crqTr=[];pinta();delete b.dataset.ok;b.textContent='Limpar'};
+  $('#crqZ').onclick=()=>{crqZoom=crqZoom>1?1:2;telaCroqui()};
+  $('#volta').onclick=()=>{location.hash=voltarDe()};
+}
 function escondeDica(){clearInterval(dicaT);const el=$('#tvdica');if(el)el.classList.remove('on');try{musAplica()}catch(e){}}
 /* ================== TELA DA TV (espera da ÍRIS + cronômetro + música) ================== */
 function tvOn(){return Date.now()-(+LS.get('tvAlive',0))<4000}
@@ -1060,6 +1094,7 @@ function render(){
   const h=decodeURIComponent(location.hash.slice(1));
   if(h==='TERMINAL'){sessionStorage.setItem('op12_tab','1');return telaTerminal();}
   if(h==='ZERAR') return telaZerar();
+  if(h==='CROQUI') return telaCroqui();
   if(h==='MESTRE') return telaMestre();
   if(h==='TV') return telaTV();
   document.body.classList.remove('tvmode');clearInterval(window._tvi);
