@@ -713,7 +713,7 @@ function telaAFIS(){
     <div class="card" style="margin-top:20px"><p class="muted" style="margin-top:0">Para comparar digitais com os funcionários, digite o código do <b>Arquivo de Pessoal</b> da sua equipe.</p>
     <input class="field" id="ac" inputmode="numeric" maxlength="4" placeholder="····"><div style="height:12px"></div><button class="btn" id="ab">Acessar banco</button>
     <div style="height:10px"></div><button class="btn ghost" id="volta">Voltar</button></div></div>`;
-    $('#ab').onclick=()=>{const v=$('#ac').value.trim();const q=(()=>{try{return sessionStorage.getItem('op12_tab')==='1'?sessionStorage.getItem('op12_teq'):null}catch(x){return null}})();if(COD_AFIS[v]&&(!q||COD_AFIS[v]===q)){LS.set('afisOK',COD_AFIS[v]);SFX.ok();render()}else{SFX.erro();$('#ac').value='';$('#ac').placeholder='CÓDIGO INVÁLIDO'}};
+    $('#ab').onclick=()=>{const v=$('#ac').value.trim();const q=(()=>{try{return sessionStorage.getItem('op12_tab')==='1'?sessionStorage.getItem('op12_teq'):null}catch(x){return null}})();const eqC=v==='9147'?(q||(LS.get('agente',null)||{}).eq||null):COD_AFIS[v];if(eqC&&(!q||eqC===q)){LS.set('afisOK',eqC);SFX.ok();render()}else{SFX.erro();$('#ac').value='';$('#ac').placeholder='CÓDIGO INVÁLIDO'}};
     $('#volta').onclick=()=>{location.hash=voltarDe()};return;
   }
   const res=LS.get('afisRes',{});
