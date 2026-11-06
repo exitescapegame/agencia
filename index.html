@@ -233,6 +233,11 @@ body.tvmode{overflow:hidden}body.tvmode *:focus{outline:none}
 .qmini{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.qmini div{text-align:center;font:600 13px var(--mono);color:var(--amb2)}.qmini .qr{background:#fff;border-radius:6px;width:100%;max-width:200px;aspect-ratio:1;margin:0 auto 6px}.qmini svg{width:100%;height:100%;display:block}
 #tvdica{position:fixed;left:50%;top:13vh;transform:translateX(-50%);width:min(1500px,88vw);z-index:110;display:none;background:linear-gradient(180deg,rgba(11,31,58,.97),rgba(5,14,30,.97));border:2px solid var(--amb2);border-radius:18px;box-shadow:0 0 60px rgba(227,197,128,.35);padding:2.2vh 3vw 2.6vh;color:#fff}
 #tvdica.on{display:block;animation:aparece .6s ease-out}
+#tvalerta{position:fixed;inset:0;z-index:150;display:none;place-items:center;text-align:center;background:rgba(150,0,0,.6)}
+#tvalerta.on{display:grid;animation:alPisca .5s steps(2) infinite}
+@keyframes alPisca{50%{background:rgba(40,0,0,.9)}}
+#tvalerta b{display:block;font:700 7vw var(--cond);color:#fff;letter-spacing:.04em;text-shadow:0 0 40px #f00}
+#tvalerta small{display:block;font:600 2vw var(--mono);color:#FFD7D7;margin-top:1.2vw;letter-spacing:.08em}
 #tvdica .h{font:600 clamp(14px,1.5vw,24px) var(--mono);letter-spacing:.28em;color:var(--amb2);display:flex;justify-content:space-between;gap:20px}
 #tvdica .x{font:600 clamp(24px,3.2vw,54px)/1.3 var(--sans);margin-top:1.2vh;text-wrap:balance}
 #tvdica .bar{height:6px;background:rgba(255,255,255,.12);border-radius:3px;margin-top:2vh;overflow:hidden}#tvdica .bar i{display:block;height:100%;background:var(--amb2);width:100%}
@@ -882,6 +887,11 @@ function telaMestre(){
    ${btn('teste','TESTE DE SOM','Toque antes de começar')}
    ${btn('fecharTV','FECHAR ÍRIS NA TV','Volta a TV para o cronômetro')}
   </div>
+  <div class="lbl">Lasers · Arduino no USB deste notebook</div>
+  <div class="card"><div class="tvst ${serPort?'on':'off'}" id="lasSt">${esc(serPort?LS.get('lasSt','ARDUINO CONECTADO'):'ARDUINO NÃO CONECTADO · clique em Conectar Arduino')}</div>
+  <div class="grid2" style="margin-top:10px"><button class="btn ghost" id="lasCon">Conectar Arduino</button><button class="btn" id="lasDes">DESARMAR · cartão encontrado</button></div>
+  <div style="height:8px"></div><div class="grid2"><button class="btn ghost" id="lasPen">Tocaram no laser (−30 s)</button><button class="btn ghost" id="lasArm">Armar de novo</button></div>
+  <p class="muted" style="margin:8px 0 0;font-size:12px" id="lasLog">${(LS.get('lasLog',[])).slice(0,6).map(esc).join('<br>')||'Toque no feixe com o sistema armado = alarme e "SISTEMA CORROMPIDO" na TV e −30 s no cronômetro. Feche o Serial Monitor do Arduino IDE antes de conectar.'}</p></div>
   <div class="lbl">Andamento das equipes</div>
   <div class="card" style="overflow-x:auto"><table class="tbl"><tr><th>EQUIPE</th>${ETAPAS.map(e=>`<th>${e}</th>`).join('')}</tr>
   ${EQUIPES.map(eq=>{const p=P[eq]||{};return `<tr><td><b>${eq}</b></td>${ETAPAS.map(e=>`<td><button class="tick ${p[e]?'on':''}" data-eq="${eq}" data-e="${e}" title="${p[e]||''}">${p[e]?p[e].slice(0,5):''}</button></td>`).join('')}</tr>`}).join('')}
@@ -918,6 +928,12 @@ function telaMestre(){
   $('#crRs').onclick=e=>{const b=e.currentTarget;if(!b.dataset.ok){b.dataset.ok=1;b.textContent='Confirmar zerar';setTimeout(()=>{delete b.dataset.ok;b.textContent='Zerar'},4000);return}LS.set('crono',CRONO0);render()};
   document.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{const P=LS.get('placar',{}),p=P[b.dataset.eq]||{};p[b.dataset.e]=p[b.dataset.e]?'':hora()+':'+pad2(new Date().getSeconds());P[b.dataset.eq]=p;LS.set('placar',P);if(p[b.dataset.e])LS.set('ultimo',{eq:b.dataset.eq,e:b.dataset.e,h:hora(),t:Date.now()});if(p[b.dataset.e])SFX.ok();render()});
   document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>cena(b.dataset.s));
+  $('#lasCon').onclick=serConectar;
+  $('#lasPen').onclick=()=>penalidade('manual');
+  $('#lasDes').onclick=e=>{const b=e.currentTarget;if(!b.dataset.ok){b.dataset.ok=1;b.textContent='Confirmar: DESARMAR';setTimeout(()=>{delete b.dataset.ok;b.textContent='DESARMAR · cartão encontrado'},4000);return}
+    serEnviar('d').then(ok=>{if(ok){SFX.ok();lasMsg('DESARMANDO… (aguarde a confirmação do Arduino)')}})};
+  $('#lasArm').onclick=e=>{const b=e.currentTarget;if(!b.dataset.ok){b.dataset.ok=1;b.textContent='Confirmar: ARMAR';setTimeout(()=>{delete b.dataset.ok;b.textContent='Armar de novo'},4000);return}
+    serEnviar('a').then(ok=>{if(ok){SFX.key();lasMsg('ARMANDO… (aguarde a confirmação do Arduino)')}})};
   document.querySelectorAll('[data-deq]').forEach(x=>x.classList.toggle('on',x.dataset.deq===dEq));document.querySelectorAll('[data-deq]').forEach(b=>b.onclick=()=>{dEq=b.dataset.deq;document.querySelectorAll('[data-deq]').forEach(x=>x.classList.toggle('on',x===b));SFX.key()});
   $('#dPronta').onchange=e=>{const v=e.target.value;if(!v)return;const [i,j]=v.split('-').map(Number);$('#dTxt').value=FASES[i][1][j];e.target.value=''};
   $('#dEnv').onclick=()=>{const t=$('#dTxt').value.trim();if(!t){SFX.erro();return}
@@ -952,6 +968,33 @@ function mostraDica(){
   if(!el.classList.contains('on')){el.classList.add('on');somCurto('audio/pista.mp3',.95,ok=>{if(!ok)try{tone(880,.09,'sine',.12);tone(1320,.14,'sine',.1,.1)}catch(e){}});try{musAplica()}catch(e){}}
   const pinta=()=>{const r=DICA_MS-(Date.now()-d.t);if(r<=0){escondeDica();return}$('#tdT').textContent=Math.ceil(r/1000)+' s';$('#tdB').style.width=(r/DICA_MS*100)+'%'};pinta();dicaT=setInterval(pinta,250);
 }
+/* ===== LASERS: Arduino pelo USB (Web Serial, Chrome/Edge) + alerta na TV ===== */
+const ALERTA_MS=6000;let serPort=null,serW=null;
+function mostraAlerta(){const a=LS.get('tvalerta',null);if(!a||Date.now()-a.t>ALERTA_MS)return;let el=$('#tvalerta');
+  if(!el){el=document.createElement('div');el.id='tvalerta';document.body.appendChild(el)}
+  el.innerHTML='<div><b>⚠ SISTEMA CORROMPIDO</b><small>FEIXE DE SEGURANÇA VIOLADO · PENALIDADE: −30 SEGUNDOS</small></div>';el.classList.add('on');
+  const tinha=!!sirene;try{sireneOn()}catch(e){}
+  clearTimeout(window._alT);window._alT=setTimeout(()=>{el.classList.remove('on');if(!tinha)try{sireneOff()}catch(e){}},ALERTA_MS-(Date.now()-a.t))}
+function lasMsg(t){LS.set('lasSt',t);const e=$('#lasSt');if(e){e.textContent=t;e.className='tvst '+(serPort?'on':'off')}}
+function lasLog(t){const L=LS.get('lasLog',[]);L.unshift(hora()+' · '+t);LS.set('lasLog',L.slice(0,20));const e=$('#lasLog');if(e)e.innerHTML=L.slice(0,6).map(esc).join('<br>')}
+function penalidade(origem){const c=Object.assign({},CRONO0,LS.get('crono',CRONO0));c.extra=(c.extra||0)-30000;LS.set('crono',c);
+  LS.set('tvalerta',{t:Date.now()});if(!tvOn())mostraAlerta();lasLog('feixe tocado'+(origem==='manual'?' (manual)':'')+' · −30 s')}
+async function serConectar(){
+  if(!('serial' in navigator)){lasMsg('ESTE NAVEGADOR NÃO CONECTA AO ARDUINO · use o Chrome ou o Edge no notebook');return}
+  if(serPort){lasMsg('ARDUINO JÁ CONECTADO');return}
+  try{const p=await navigator.serial.requestPort();await p.open({baudRate:9600});serPort=p;serW=p.writable.getWriter();
+    lasMsg('ARDUINO CONECTADO · aguardando o sistema armar…');lasLog('Arduino conectado');serLer()}
+  catch(e){serPort=null;serW=null;lasMsg('NÃO CONECTOU · feche o Serial Monitor do Arduino IDE e tente de novo')}}
+async function serLer(){const dec=new TextDecoder();let buf='';const rd=serPort.readable.getReader();
+  try{for(;;){const {value,done}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});let i;while((i=buf.indexOf('\n'))>=0){const l=buf.slice(0,i).trim();buf=buf.slice(i+1);serLinha(l)}}}catch(e){}
+  try{rd.releaseLock()}catch(e){}serPort=null;serW=null;lasMsg('ARDUINO DESCONECTADO · confira o cabo USB e clique em Conectar Arduino');lasLog('Arduino desconectado')}
+function serLinha(l){
+  if(l.includes('FEIXE CORTADO'))penalidade('arduino');
+  else if(l.includes('SISTEMA DESARMADO')){lasMsg('LASERS DESARMADOS · trava da caixa SOLTA');lasLog('lasers desarmados')}
+  else if(l.includes('SISTEMA ARMADO')){lasMsg('LASERS ARMADOS · vigiando');lasLog('lasers armados')}
+  else if(l.includes('NAO CHEGA')){lasMsg('LASERS NÃO ARMARAM · alinhe o laser no sensor e clique em Armar de novo');lasLog('não armou: laser fora do sensor')}}
+async function serEnviar(ch){if(!serW){lasMsg('CONECTE O ARDUINO PRIMEIRO (botão Conectar Arduino)');SFX.erro();return false}
+  try{await serW.write(new TextEncoder().encode(ch));return true}catch(e){lasMsg('FALHA AO ENVIAR · reconecte o Arduino');return false}}
 function escondeDica(){clearInterval(dicaT);const el=$('#tvdica');if(el)el.classList.remove('on');try{musAplica()}catch(e){}}
 /* ================== TELA DA TV (espera da ÍRIS + cronômetro + música) ================== */
 function tvOn(){return Date.now()-(+LS.get('tvAlive',0))<4000}
@@ -986,7 +1029,7 @@ function telaTV(){
     if(r<=0&&window._tvR>0){try{SFX.erro()}catch(x){}}window._tvR=r;
     const st=$('#tvst2');if(st){const t=r<=0?'TEMPO ESGOTADO':(!c.run&&!c.acum)?'AGUARDANDO O INÍCIO DA MISSÃO':!c.run?'MISSÃO PAUSADA':'MISSÃO EM ANDAMENTO · TODAS AS EQUIPES EM CAMPO';if(st.dataset.t!==t){st.dataset.t=t;st.innerHTML='<i></i>'+t;st.classList.toggle('pausa',!c.run||r<=0)}}
     const hh=$('#tvh');if(hh)hh.textContent=hora();musAplica()},500);
-  LS.set('tvAlive',Date.now());tvAnel();mostraDica();
+  LS.set('tvAlive',Date.now());tvAnel();mostraDica();mostraAlerta();
 }
 function tvAnel(){
   const r=$('#tvring');if(!r)return;const g=r.getContext('2d'),R=r.width/2,base=R*.6,N=120,t=performance.now()/1000;
@@ -1002,6 +1045,7 @@ window.addEventListener('storage',ev=>{
   if(!document.body.classList.contains('tvmode'))return;
   if(ev.key==='op12_musica')musAplica();
   if(ev.key==='op12_tvdica')mostraDica();
+  if(ev.key==='op12_tvalerta')mostraAlerta();
   if(ev.key==='op12_tvcmd'&&ev.newValue){try{const c=JSON.parse(ev.newValue);if(Date.now()-c.t<5000)cena(c.id,true)}catch(e){}}
 });
 /* ================== ROTEADOR ================== */
