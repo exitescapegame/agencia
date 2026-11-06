@@ -557,13 +557,8 @@ function telaAgente(a){
   <div class="lbl">Perícia · digitais</div>
   <div class="card"><p class="muted" style="margin-top:0">Procure as etiquetas de <b>patrimônio</b> e os <b>lacres da perícia</b> nos objetos. Aproxime o celular ou escaneie o código para revelar digitais.</p>
   <button class="btn ghost" onclick="location.hash='AFIS'">Banco de digitais (AFIS) · ${Object.keys(digs()).length} capturada(s)</button></div>
-  <div class="lbl">Central de dicas</div>
-  <div class="card"><div class="chips">${FASES.map((f,i)=>`<button class="chip ${i===fase?'on':''}" data-f="${i}">${i+1} · ${f[0]}</button>`).join('')}</div>
-   ${FASES[fase][1].slice(0,vistas).map((h,i)=>`<div class="hint"><small>DICA ${i+1} DE ${tot}</small>${esc(h)}</div>`).join('')}
-   ${blocos[fase]?(vistas<tot?`<button class="btn ghost" id="dProx">Ver dica ${vistas+1} de ${tot}</button>`:'<p class="muted" style="margin:0">Todas as dicas deste bloco foram liberadas.</p>')
-   :`<p class="muted" style="margin:6px 0 10px;font-size:13px">Dicas do bloco <b>${fase+1} · ${FASES[fase][0]}</b> bloqueadas. Chamem a <b style="color:var(--amb2)">CENTRAL ${a.eq}</b> pelo rádio e peçam ajuda no bloco ${fase+1}. Os agentes da Central vão resolver um enigma e passar a <b>senha</b>.</p>
-   <input class="field" id="dsIn" inputmode="numeric" maxlength="4" placeholder="SENHA DO BLOCO ${fase+1}"><div style="height:10px"></div>
-   <button class="btn ghost" id="dsBtn">Liberar dicas do bloco</button>`}</div>
+  <div class="lbl">Dicas da Agência</div>
+  <div class="card"><p class="muted" style="margin:0">Quando a Agência liberar uma dica, ela aparece na <b style="color:var(--amb2)">TV do salão</b>. Fiquem de olho e ouvidos atentos ao chamado de rádio.</p></div>
   <div class="lbl">Selfie de agente</div>
   <div class="card"><p class="muted" style="margin-top:0">Tire uma selfie com os filtros da Agência. A foto também entra no seu certificado.</p><button class="btn ghost" id="sfBtn" onclick="location.hash='SELFIE'">Abrir câmera com filtros</button></div>
   <div class="lbl">Certificado</div>
