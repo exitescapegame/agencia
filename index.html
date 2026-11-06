@@ -829,7 +829,7 @@ function termLoginCheck(){
   if(!eq){SFX.erro();return termLogin('SENHA INCORRETA · TENTE DE NOVO')}
   try{sessionStorage.setItem('op12_teq',eq);sessionStorage.setItem('op12_tab','1')}catch(e){}SFX.ok();tabInat();telaTerminal();tabBarra();
 }
-const FOTO_COD=['946','0946','936','0936','9147','0611'];   // qualquer um destes no tablet mostra o rosto do Alan (o mestre decide quando)
+const FOTO_COD=['0936','0611'];   // 0936 = senha do mandado (jogadores) · 0611 = mestre, a qualquer momento
 function termFoto(){   // senha do quadro (946): mostra o rosto do suspeito
   tBuf='';SFX.ok();
   $('#tb').innerHTML=`<h2 style="color:var(--grn)">ROSTO IDENTIFICADO</h2><div class="sub">CRUZAMENTO DE IMAGENS · CÂMERAS DO SALÃO</div>
