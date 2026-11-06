@@ -1,5 +1,5 @@
 /* Cache offline do app ÍRIS: depois de aberto uma vez, funciona sem internet. */
-const V='iris-v24';   // trocar a versão a cada publicação para os celulares atualizarem
+const V='iris-v25';   // trocar a versão a cada publicação para os celulares atualizarem
 const ARQ=['./','index.html','img/brasao.png','img/dig_ALAN.png','img/dig_TIAGO.png','img/dig_TATIANA.png','img/dig_ARTHUR.png','img/inv04.jpg','img/manual.jpg','img/croqui.jpg','img/fx/baloes.webp','img/fx/hud.jpg','img/fx/logo_exit.webp','img/fx/revista.webp','img/fx/polaroid.webp','fonts/BarlowCondensed-SemiBold.ttf','fonts/BarlowCondensed-Bold.ttf','fonts/IBMPlexMono-Regular.ttf','fonts/IBMPlexMono-SemiBold.ttf','fonts/IBMPlexSans-Regular.ttf','fonts/IBMPlexSans-SemiBold.ttf',
  'audio/iris_1.mp3','audio/iris_2.mp3','audio/iris_3.mp3','audio/iris_4.mp3','audio/iris_5.mp3','audio/iris_6.mp3','audio/pista.mp3','audio/tempos.json','videos/CAM01.mp4','videos/CAM02.mp4','videos/CAM03.mp4'];
 const CEN=[];['ALFA','BRAVO','CHARLIE','DELTA'].forEach(q=>{for(let n=1;n<=7;n++)CEN.push('img/central/'+q+'_'+n+'.jpg')});   // caderno das Centrais offline

@@ -414,6 +414,15 @@ const FASES=[
   'Aguardem as ordens da ÍRIS. Nos lasers: um de cada vez, com cuidado.']]
 ];
 /* guia do mestre: solução de cada bloco (só aparece no painel do mestre, nunca é enviada) */
+const GUIA=[
+ 'AS CORES: envelope (relatório + 7 cartões) → 9147 → abre a maleta (lupa).',
+ 'O RASTRO: sapato + lupa → nº do caso no tablet (ALFA 5826 · BRAVO 2741 · CHARLIE 9360 · DELTA 4198) → vídeos.',
+ 'O MANDADO: 936 → cadeado do item que ajuda na investigação (lanterna UV).',
+ 'TINTA INVISÍVEL: quadro UV (cabo 9 · nota 4 · chave 6, ordem dos horários) → 946 → Arquivo de Pessoal.',
+ 'O ROSTO: 0936 no tablet (tela do nº do caso) → foto do Alan.',
+ 'A ACUSAÇÃO: passo 75 cm = 1,80 m · calçado 44 → INV 04 "O MAGRO" (Alan). Quando todas entregarem: cena 4.',
+ 'FINAL: cartão STAFF-07 no leitor → DESARMAR (2 cliques) → cena 6 (certificado 0611).',
+ 'MESTRE NO TABLET: botão discreto ÍRIS embaixo → senha EXITMESTRE → liberar vídeos, mostrar rosto ou tirar o bloqueio, mesmo com senha errada.'];
 const SOLUCAO=[
  'Passo de 75 cm = 1,80 m (Manual de Campo). Caso da Pasta de Evidências com a mesma sola, o mesmo símbolo e o mesmo número. Nº do caso (no terminal, libera os vídeos): ALFA 5826 · BRAVO 2741 · CHARLIE 9360 · DELTA 4198. Senha para entrar nos tablets: ALFA 3107 · BRAVO 4815 · CHARLIE 6290 · DELTA 7342.',
  'Nos 3 vídeos caem o cabo, a nota de R$ 2 e a chave; a luz negra revela um número no quadro perto de cada objeto; ordem dos horários. Caixa do Suspeito: 946 (igual para todas as equipes).',
@@ -810,7 +819,8 @@ function termPin(msg){
   $('#tb').innerHTML=`<h2>ARQUIVO DE CÂMERAS</h2><div class="sub">${msg||'DIGITE O NÚMERO DO CASO RELACIONADO'}</div>
   <div class="pinrow">${[0,1,2,3].map(i=>`<div class="pin" id="p${i}"></div>`).join('')}</div>
   <div class="pad" style="margin-bottom:18px">${[1,2,3,4,5,6,7,8,9].map(n=>`<button data-k="${n}">${n}</button>`).join('')}<button class="k2" data-k="C">APAGAR</button><button data-k="0">0</button><button class="k2" data-k="E" style="color:var(--grn)">ENTRAR</button></div>`;
-  $('#tb').insertAdjacentHTML('beforeend',`<div style="max-width:420px;margin:0 auto;display:grid;gap:10px"><button class="btn ghost" id="tman" onclick="location.hash='MANUAL'">Manual de Campo · altura pelo passo</button></div>`);
+  $('#tb').insertAdjacentHTML('beforeend',`<div style="max-width:420px;margin:0 auto;display:grid;gap:10px"><button class="btn ghost" id="tman" onclick="location.hash='MANUAL'">Manual de Campo · altura pelo passo</button><button id="tmst" style="background:none;border:0;color:rgba(170,215,235,.18);font:600 11px var(--mono);letter-spacing:.2em;padding:10px;cursor:pointer">ÍRIS</button></div>`);
+  $('#tmst').onclick=termMestre;
   if($('#tper'))$('#tper').onclick=()=>{$('#tb').innerHTML=`<h2>PERÍCIA</h2><div class="sub">DIGITE O CÓDIGO IMPRESSO NA ETIQUETA</div><div style="max-width:420px;margin:0 auto"><input class="field" id="tcod" maxlength="4" placeholder="EX.: A1B2" style="text-align:center;font-size:32px"><div style="height:12px"></div><button class="btn" id="tgo">Abrir</button><div style="height:10px"></div><button class="btn ghost" id="tafis">Banco de digitais (AFIS)</button><div style="height:10px"></div><button class="btn ghost" id="tvol">Voltar</button></div>`;
     $('#tgo').onclick=()=>{const v=$('#tcod').value.trim().toUpperCase();if(EVID[v]){sessionStorage.setItem('op12_tab','1');location.hash='E-'+v}else{SFX.erro();$('#tcod').value='';$('#tcod').placeholder='CÓDIGO INVÁLIDO'}};
     $('#tafis').onclick=()=>{sessionStorage.setItem('op12_tab','1');location.hash='AFIS'};$('#tvol').onclick=()=>termPin()};
@@ -829,7 +839,23 @@ function termLoginCheck(){
   if(!eq){SFX.erro();return termLogin('SENHA INCORRETA · TENTE DE NOVO')}
   try{sessionStorage.setItem('op12_teq',eq);sessionStorage.setItem('op12_tab','1')}catch(e){}SFX.ok();tabInat();telaTerminal();tabBarra();
 }
-const FOTO_COD=['0936','0611'];   // 0936 = senha do mandado (jogadores) · 0611 = mestre, a qualquer momento
+const FOTO_COD=['0936'];   // 0936 = senha do mandado (jogadores)
+const MESTRE_ROSTO='EXITMESTRE';   // senha em letras do mestre: mostra o rosto a qualquer momento
+function termMestre(){   // acesso escondido do mestre (botão ÍRIS): senha em letras
+  tBuf='';
+  $('#tb').innerHTML=`<h2>ACESSO DO MESTRE</h2><div class="sub">DIGITE A SENHA DO MESTRE</div><div style="max-width:420px;margin:0 auto"><input class="field" id="tmIn" autocomplete="off" autocapitalize="characters" spellcheck="false" style="text-align:center;font-size:28px"><div style="height:12px"></div><button class="btn" id="tmOk">Confirmar</button><div style="height:10px"></div><button class="btn ghost" id="tmVo">Voltar</button></div>`;
+  $('#tmIn').focus();
+  const vai=()=>{const v=$('#tmIn').value.normalize('NFD').replace(/[^A-Za-z]/g,'').toUpperCase();if(v!==MESTRE_ROSTO){SFX.erro();return termVolta()}
+    SFX.ok();const q=teq();
+    $('#tb').innerHTML=`<h2>MESTRE · EQUIPE ${q||''}</h2><div class="sub">LIBERAR SEM SENHA</div><div style="max-width:420px;margin:0 auto;display:grid;gap:10px">
+     <button class="btn" id="mlV">Liberar vídeos (câmeras)</button><button class="btn" id="mlR">Mostrar rosto do Alan</button><button class="btn ghost" id="mlB">Tirar bloqueio de 30 s</button><button class="btn ghost" id="mlS">Sair</button></div>`;
+    $('#mlV').onclick=()=>{tLock=0;clearInterval(window._tt);const m=$('#tm');if(m)m.classList.remove('alarm');if(q)termLibera(q);else termVolta()};
+    $('#mlR').onclick=()=>{tLock=0;clearInterval(window._tt);const m=$('#tm');if(m)m.classList.remove('alarm');termFoto()};
+    $('#mlB').onclick=()=>{tLock=0;clearInterval(window._tt);const m=$('#tm');if(m)m.classList.remove('alarm');termVolta()};
+    $('#mlS').onclick=termVolta};
+  $('#tmOk').onclick=vai;$('#tmIn').onkeydown=e=>{if(e.key==='Enter')vai()};$('#tmVo').onclick=termVolta;
+}
+function termVolta(){if(Date.now()<tLock){$('#tb').innerHTML='<h2 style="color:var(--red)">ACESSO NEGADO</h2><div class="sub">TERMINAL BLOQUEADO</div><div class="big" id="cd" style="color:var(--red)">'+Math.ceil((tLock-Date.now())/1000)+'</div>';return}termPin()}
 function termFoto(){   // senha do quadro (946): mostra o rosto do suspeito
   tBuf='';SFX.ok();
   $('#tb').innerHTML=`<h2 style="color:var(--grn)">ROSTO IDENTIFICADO</h2><div class="sub">CRUZAMENTO DE IMAGENS · CÂMERAS DO SALÃO</div>
@@ -842,9 +868,12 @@ function termCheck(){
   if(tModo!=='caso'||tBuf.length<4)return;if(FOTO_COD.includes(tBuf))return termFoto();const eq0=SENHAS[tBuf],q=teq();const eq=(q&&eq0!==q)?null:eq0;
   if(!eq){
     tLock=Date.now()+30000;SFX.erro();$('#tm').classList.add('alarm');
-    let s=30;$('#tb').innerHTML=`<h2 style="color:var(--red)">ACESSO NEGADO</h2><div class="sub">NÚMERO DE CASO INCORRETO · TERMINAL BLOQUEADO</div><div class="big" id="cd" style="color:var(--red)">30</div>`;
+    let s=30;$('#tb').innerHTML=`<h2 style="color:var(--red)">ACESSO NEGADO</h2><div class="sub">NÚMERO DE CASO INCORRETO · TERMINAL BLOQUEADO</div><div class="big" id="cd" style="color:var(--red)">30</div><button onclick="termMestre()" style="background:none;border:0;color:rgba(170,215,235,.18);font:600 11px var(--mono);letter-spacing:.2em;padding:10px;cursor:pointer">ÍRIS</button>`;
     clearInterval(window._tt);window._tt=setInterval(()=>{s--;const e=$('#cd');if(e)e.textContent=s;if(s<=0){clearInterval(window._tt);const m=$('#tm');if(m)m.classList.remove('alarm');if(location.hash==='#TERMINAL')termPin()}},1000);return;
   }
+  termLibera(eq);
+}
+function termLibera(eq){
   SFX.data();
   $('#tb').innerHTML=`<h2 style="color:var(--grn)">ACESSO AUTORIZADO</h2><div class="sub">EQUIPE ${eq} · DESCRIPTOGRAFANDO GRAVAÇÕES</div><div class="card"><div class="log" id="lg"></div><div class="bar"><i id="br"></i></div></div>`;
   const L=['> caso localizado no banco da Agência','> vinculando gravações do salão (06/11/2026)','> CAM 01 · porta de serviço ........ OK','> CAM 02 · mesa de doces ........... OK','> CAM 03 · porta da copa ........... OK','> pacote pronto para transferência'];
@@ -904,22 +933,15 @@ function telaMestre(){
   <div class="card" style="overflow-x:auto"><table class="tbl"><tr><th>EQUIPE</th>${ETAPAS.map(e=>`<th>${e}</th>`).join('')}</tr>
   ${EQUIPES.map(eq=>{const p=P[eq]||{};return `<tr><td><b>${eq}</b></td>${ETAPAS.map(e=>`<td><button class="tick ${p[e]?'on':''}" data-eq="${eq}" data-e="${e}" title="${p[e]||''}">${p[e]?p[e].slice(0,5):''}</button></td>`).join('')}</tr>`}).join('')}
   </table><p class="muted" style="margin:10px 0 0;font-size:12px">Toque para marcar a hora em que a equipe concluiu cada etapa. A 1ª equipe com o MANDADO certo conduz a prisão.</p></div>
-  <div class="lbl">Delegacia · senhas dos blocos de dicas</div>
-  <div class="card" style="overflow-x:auto"><table class="tbl"><tr><th>BLOCO</th>${EQUIPES.map(e=>`<th>${e}</th>`).join('')}</tr>
-   ${FASES.map((f,i)=>`<tr><td style="text-align:left"><b>${i+1}</b> ${f[0]}</td>${EQUIPES.map(e=>{const k=e+'-'+i,en=DE[k];return `<td><b style="font:600 15px var(--mono);color:${en?'var(--mut)':'var(--amb2)'}">${DSENHA[e][i]}</b><br><button class="tick ${en?'on':''}" data-dent="${k}" style="width:auto;padding:2px 6px;font-size:10px">${en?'ENTREGUE '+en:'ENTREGUEI'}</button></td>`}).join('')}</tr>`).join('')}
-  </table><p class="muted" style="margin:10px 0 0;font-size:12px">A senha é a resposta do enigma do Caderno da Central. Marque quando a Central passar a senha.</p></div>
   <div class="lbl">Dica na TV · aparece por 1 minuto</div>
   <div class="card"><div class="eqsel">${['GERAL'].concat(EQUIPES).map(e=>`<button class="btn ghost ${e==='GERAL'?'on':''}" data-deq="${e}">${e}</button>`).join('')}</div>
-  <div style="height:10px"></div><select class="field" id="dPronta" style="text-transform:none"><option value="">Dicas prontas (escolher só preenche o texto)…</option>${FASES.map((f,i)=>f[1].map((h,j)=>`<option value="${i}-${j}">Bloco ${i+1} · dica ${j+1}: ${esc(h.slice(0,70))}${h.length>70?'…':''}</option>`).join('')).join('')}</select>
-  <details style="margin-top:10px"><summary class="muted" style="cursor:pointer;font-size:13px">Guia do mestre · solução de cada bloco (nunca vai para a TV)</summary>${SOLUCAO.map((t,i)=>`<p class="muted" style="font-size:12px;margin:8px 0 0"><b style="color:var(--amb2)">${i+1} · ${FASES[i][0]}:</b> ${esc(t)}</p>`).join('')}</details>
+  <div style="height:10px"></div><select class="field" id="dPronta" style="text-transform:none"><option value="">Dicas prontas (escolher só preenche o texto)…</option>${FASES.map((f,i)=>(i===2||i===4)?'':f[1].map((h,j)=>`<option value="${i}-${j}">Bloco ${i+1} · dica ${j+1}: ${esc(h.slice(0,70))}${h.length>70?'…':''}</option>`).join('')).join('')}</select>
+  <details style="margin-top:10px"><summary class="muted" style="cursor:pointer;font-size:13px">Guia do mestre · fases do jogo (nunca vai para a TV)</summary>${GUIA.map((t,i)=>`<p class="muted" style="font-size:12px;margin:8px 0 0"><b style="color:var(--amb2)">${i+1}.</b> ${esc(t)}</p>`).join('')}</details>
   <div style="height:10px"></div><textarea class="field" id="dTxt" maxlength="240" rows="3" style="text-transform:none;resize:vertical" placeholder="Digite a dica. A TV só mostra quando você apertar ENVIAR."></textarea>
   <div style="height:10px"></div><div class="grid2"><button class="btn" id="dEnv">Enviar na TV</button><button class="btn ghost" id="dTir">Tirar da TV</button></div>
   <p class="muted" style="margin:8px 0 0;font-size:12px" id="dSt">A TV não mostra nada enquanto você digita.</p></div>
-  <div class="lbl">Acesso das Centrais (adultos) · Caderno da Central</div>
-  <div class="card"><div class="qmini">${EQUIPES.map(e=>`<div><div class="qr">${QRC[e][1]}</div>CENTRAL ${e} · ${QRC[e][2]}</div>`).join('')}</div>
-  <p class="muted" style="margin:10px 0 0;font-size:12px">Cada Central escaneia o QR da sua equipe (ou digita o código na tela inicial do app). Abre só o caderno daquela Central.</p></div>
   <div class="lbl">Senhas e códigos</div>
-  <div class="card" style="font:400 12px/1.8 var(--mono)">TABLET (entrar): ALFA 3107 · BRAVO 4815 · CHARLIE 6290 · DELTA 7342<br>Nº DO CASO (libera os vídeos): ALFA 5826 · BRAVO 2741 · CHARLIE 9360 · DELTA 4198<br>CAIXA DO SUSPEITO: 946 (todas as equipes)<br>ARQUIVO DE PESSOAL e AFIS: ALFA 125 · BRAVO 251 · CHARLIE 512 · DELTA 521<br>CERTIFICADO: ${COD_CERT}</div>
+  <div class="card" style="font:400 12px/1.8 var(--mono)">TABLET (entrar): ALFA 3107 · BRAVO 4815 · CHARLIE 6290 · DELTA 7342<br>Nº DO CASO (libera os vídeos): ALFA 5826 · BRAVO 2741 · CHARLIE 9360 · DELTA 4198<br>CORES (maleta): 9147 · MANDADO (lanterna UV): 936 · QUADRO UV (Arquivo): 946<br>ROSTO DO ALAN no tablet: 0936 · MESTRE no tablet (botão ÍRIS): EXITMESTRE<br>CERTIFICADO: ${COD_CERT}</div>
   <div class="lbl">Depois dos testes</div>
   <div class="card"><button class="btn ghost" id="zerTudo">ZERAR TUDO NESTE NOTEBOOK (painel + TV)</button><p class="muted" style="margin:8px 0 0;font-size:12px">Apaga cronômetro, andamento, dicas, alertas e registros. Nos celulares e tablets usados no teste, abra ${location.origin+location.pathname}#ZERAR em cada um.</p></div>
   <div class="lbl">Links</div>
